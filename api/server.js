@@ -1,6 +1,4 @@
 const express = require("express")
-const bodyParser = require("body-parser")
-const https = require("https")
 
 const app = express()
 // const TARGET_BASE_URL = "https://reliv-openai-east-us.openai.azure.com"
@@ -21,55 +19,37 @@ app.use("/", (req, res) => {
   const targetUrl = new URL(req.url, TARGET_BASE_URL)
   console.log("Target URL:", targetUrl.toString())
 
-  const headers = { ...req.headers, host: targetUrl.hostname }
+  const body = JSON.stringify(req.body)
 
-  // Serialize the request body
-  let body = null
-  if (req.body && Object.keys(req.body).length > 0) {
-    body = JSON.stringify(req.body)
-    headers["Content-Length"] = Buffer.byteLength(body)
-  } else {
-    headers["Content-Length"] = 0
+  const headers = {
+    ...req.headers,
+    host: targetUrl.hostname,
+    "content-length": Buffer.byteLength(body),
   }
 
   const options = {
     method: req.method,
     headers: headers,
-    hostname: targetUrl.hostname,
-    port: targetUrl.port,
-    path: targetUrl.pathname + targetUrl.search,
-    protocol: targetUrl.protocol,
-    rejectUnauthorized: false, // Disable SSL certificate validation
+    body: body,
   }
 
   console.log("Proxy options:", options)
 
-  const proxyReq = https.request(options, (proxyRes) => {
-    let data = ""
-    proxyRes.on("data", (chunk) => {
-      data += chunk
-    })
-    proxyRes.on("end", () => {
-      try {
-        const jsonData = JSON.parse(data)
-        console.log("Response:", jsonData)
-        res.json(jsonData)
-      } catch (error) {
-        console.error("Response Parsing Error:", error)
-        res.status(500).send("Response Parsing Error")
+  fetch(targetUrl.toString(), options)
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`Fetch Error: ${response.statusText}`)
       }
+      return response.json()
     })
-  })
-
-  proxyReq.on("error", (error) => {
-    console.error("Proxy Request Error:", error)
-    res.status(500).send("Proxy Request Error")
-  })
-
-  if (body) {
-    proxyReq.write(body)
-  }
-  proxyReq.end()
+    .then((data) => {
+      console.log("Response:", data)
+      res.json(data)
+    })
+    .catch((error) => {
+      console.error("Fetch Error:", error)
+      res.status(500).send("Fetch Error")
+    })
 })
 
 if (process.env.NODE_ENV === "development") {
