@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "NODE_ENV=development nodemon api/server.js",
+    "start": "NODE_ENV=production node api/server.js"
   },
   "keywords": [],
   "author": "",
@@ -13,6 +15,7 @@
     "axios": "^1.7.7",
     "body-parser": "^1.20.3",
     "connect": "^3.7.0",
+    "dotenv": "^16.4.5",
     "express": "^4.21.0",
     "http-proxy-middleware": "^3.0.2",
     "morgan": "^1.10.0"

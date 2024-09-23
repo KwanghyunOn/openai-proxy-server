@@ -1,10 +1,11 @@
 const axios = require("axios")
+require("dotenv").config()
 
 const PORT = 3000
 const PROXY_ENDPOINT = `http://localhost:${PORT}`
 const TARGET_ENDPOINT = "https://reliv-openai-east-us.openai.azure.com"
 const DEPLOYMENT_NAME = "gpt-4o-2024-08-06"
-const API_KEY = "d4b2919d120e4f089669c15543988a96"
+const API_KEY = process.env.API_KEY
 
 async function callAzureOpenAI() {
   try {

@@ -49,4 +49,11 @@ app.use("/", (req, res) => {
     })
 })
 
-module.exports = app
+if (process.env.NODE_ENV === "development") {
+  const PORT = 3000
+  app.listen(PORT, () => {
+    console.log(`Development server running on http://localhost:${PORT}`)
+  })
+} else {
+  module.exports = app
+}
