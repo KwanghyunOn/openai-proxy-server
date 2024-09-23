@@ -3,18 +3,22 @@ require("dotenv").config()
 
 const PORT = 3000
 const PROXY_ENDPOINT = `http://localhost:${PORT}`
-const TARGET_ENDPOINT = "https://reliv-openai-east-us.openai.azure.com"
-const DEPLOYMENT_NAME = "gpt-4o-2024-08-06"
-const API_KEY = process.env.API_KEY
+// const PROXY_ENDPOINT = "https://openai-proxy-server.vercel.app"
+const AZURE_OPENAI_ENDPOINT = "https://reliv-openai-east-us.openai.azure.com"
+const AZURE_OPENAI_DEPLOYMENT_NAME = "gpt-4o-2024-08-06"
+const AZURE_OPENAI_API_KEY = process.env.AZURE_OPENAI_API_KEY
+
+const OPENAI_ENDPOINT = "https://api.openai.com/v1"
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY
 
 async function callAzureOpenAI() {
   try {
-    // const expectedResponse = await axios({
+    // const azureOpenAIResponse = await axios({
     //   method: "post",
-    //   url: `${TARGET_ENDPOINT}/openai/deployments/${DEPLOYMENT_NAME}/chat/completions?api-version=2024-06-01`,
+    //   url: `${PROXY_ENDPOINT}/openai/deployments/${AZURE_OPENAI_DEPLOYMENT_NAME}/chat/completions?api-version=2024-06-01`,
     //   headers: {
     //     "Content-Type": "application/json",
-    //     "api-key": API_KEY,
+    //     "api-key": AZURE_OPENAI_API_KEY,
     //   },
     //   data: {
     //     messages: [
@@ -24,19 +28,16 @@ async function callAzureOpenAI() {
     //     max_tokens: 2048,
     //   },
     // })
-    // console.log(
-    //   "Expected Response:",
-    //   JSON.stringify(expectedResponse.data, null, 2)
-    // )
 
-    const response = await axios({
+    const openAIResponse = await axios({
       method: "post",
-      url: `${PROXY_ENDPOINT}/openai/deployments/${DEPLOYMENT_NAME}/chat/completions?api-version=2024-06-01`,
+      url: `${PROXY_ENDPOINT}/v1/chat/completions`,
       headers: {
         "Content-Type": "application/json",
-        "api-key": API_KEY,
+        Authorization: `Bearer ${OPENAI_API_KEY}`,
       },
       data: {
+        model: "gpt-4o",
         messages: [
           { role: "system", content: "You are a helpful assistant." },
           { role: "user", content: "What is the capital of France?" },
@@ -45,7 +46,7 @@ async function callAzureOpenAI() {
       },
     })
 
-    console.log("Response:", JSON.stringify(response.data, null, 2))
+    console.log("Response:", JSON.stringify(openAIResponse.data, null, 2))
   } catch (error) {
     console.error(
       "Error:",

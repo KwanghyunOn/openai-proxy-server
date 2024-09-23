@@ -2,7 +2,8 @@ const express = require("express")
 const bodyParser = require("body-parser")
 
 const app = express()
-const TARGET_BASE_URL = "https://reliv-openai-east-us.openai.azure.com"
+// const TARGET_BASE_URL = "https://reliv-openai-east-us.openai.azure.com"
+const TARGET_BASE_URL = "https://api.openai.com/v1"
 
 // Body parser middleware
 app.use(bodyParser.json())
