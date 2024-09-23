@@ -19,18 +19,20 @@ app.use("/", (req, res) => {
   const targetUrl = new URL(req.url, TARGET_BASE_URL)
   console.log("Target URL:", targetUrl.toString())
 
-  const body = JSON.stringify(req.body)
-
   const headers = {
     ...req.headers,
     host: targetUrl.hostname,
-    "content-length": Buffer.byteLength(body),
   }
 
   const options = {
     method: req.method,
     headers: headers,
-    body: body,
+  }
+
+  if (req.method === "POST") {
+    const body = JSON.stringify(req.body)
+    headers["content-length"] = Buffer.byteLength(body)
+    options.body = body
   }
 
   console.log("Proxy options:", options)
