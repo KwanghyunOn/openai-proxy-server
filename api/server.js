@@ -40,7 +40,14 @@ app.use("/", (req, res) => {
       if (!response.ok) {
         throw new Error(`Fetch Error: ${response.statusText}`)
       }
-      return response.json()
+      return response.text()
+    })
+    .then((text) => {
+      if (text) {
+        return JSON.parse(text)
+      } else {
+        return {} // Return an empty object if the response is empty
+      }
     })
     .then((data) => {
       console.log("Response:", data)
