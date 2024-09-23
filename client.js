@@ -2,8 +2,8 @@ const axios = require("axios")
 require("dotenv").config()
 
 const PORT = 3000
-const PROXY_ENDPOINT = `http://localhost:${PORT}`
-// const PROXY_ENDPOINT = "https://openai-proxy-server.vercel.app"
+// const PROXY_ENDPOINT = `http://localhost:${PORT}/v1`
+const PROXY_ENDPOINT = "https://openai-proxy-server.vercel.app/v1"
 const AZURE_OPENAI_ENDPOINT = "https://reliv-openai-east-us.openai.azure.com"
 const AZURE_OPENAI_DEPLOYMENT_NAME = "gpt-4o-2024-08-06"
 const AZURE_OPENAI_API_KEY = process.env.AZURE_OPENAI_API_KEY
@@ -11,7 +11,7 @@ const AZURE_OPENAI_API_KEY = process.env.AZURE_OPENAI_API_KEY
 const OPENAI_ENDPOINT = "https://api.openai.com/v1"
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY
 
-async function callAzureOpenAI() {
+async function fetchProxyServer() {
   try {
     // const azureOpenAIResponse = await axios({
     //   method: "post",
@@ -31,18 +31,23 @@ async function callAzureOpenAI() {
 
     const openAIResponse = await axios({
       method: "post",
-      url: `${PROXY_ENDPOINT}/v1/chat/completions`,
+      url: `${PROXY_ENDPOINT}/chat/completions`,
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${OPENAI_API_KEY}`,
       },
       data: {
-        model: "gpt-4o",
         messages: [
-          { role: "system", content: "You are a helpful assistant." },
-          { role: "user", content: "What is the capital of France?" },
+          {
+            role: "system",
+            content: "You are a test assistant.",
+          },
+          {
+            role: "user",
+            content: "Testing. Just say hi and nothing else.",
+          },
         ],
-        max_tokens: 2048,
+        model: "gpt-3.5-turbo",
       },
     })
 
@@ -55,4 +60,4 @@ async function callAzureOpenAI() {
   }
 }
 
-callAzureOpenAI()
+fetchProxyServer()
