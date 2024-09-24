@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "NODE_ENV=development nodemon api/server.js",
-    "start": "NODE_ENV=production node api/server.js"
+    "dev": "NODE_ENV=development nodemon api/index.js",
+    "start": "NODE_ENV=production node api/index.js"
   },
   "keywords": [],
   "author": "",

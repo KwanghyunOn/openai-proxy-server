@@ -6,10 +6,8 @@ const app = express()
 const PORT = 3000
 const TARGET = "https://api.openai.com"
 
-// Logging middleware
 app.use(morgan("dev"))
 
-// Create the proxy middleware
 const proxy = createProxyMiddleware({
   target: TARGET,
   changeOrigin: true,
