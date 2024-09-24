@@ -6,7 +6,9 @@ const app = express()
 const PORT = 3000
 const TARGET = "https://api.openai.com"
 
-app.use(morgan("dev"))
+if (process.env.NODE_ENV === "development") {
+  app.use(morgan("dev"))
+}
 
 const proxy = createProxyMiddleware({
   target: TARGET,
@@ -27,7 +29,14 @@ const proxy = createProxyMiddleware({
 
 app.use("/", proxy)
 
-app.listen(PORT, () => {
-  console.log(`Transparent proxy server is running on http://localhost:${PORT}`)
-  console.log(`Proxying all requests to ${TARGET}`)
-})
+module.exports = app
+
+if (process.env.NODE_ENV === "development") {
+  app.listen(PORT, () => {
+    console.log(
+      `Transparent proxy server is running on http://localhost:${PORT}`
+    )
+  })
+}
+
+console.log(`Proxying all requests to ${TARGET}`)
