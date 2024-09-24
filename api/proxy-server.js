@@ -58,7 +58,7 @@ const proxy = createProxyMiddleware({
             type: "response",
             method: req.method,
             url: req.url,
-            response: response,
+            response,
           })
         }
         return response
