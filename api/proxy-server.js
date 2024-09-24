@@ -10,17 +10,32 @@ if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"))
 }
 
+app.use((req, res, next) => {
+  console.log(`Request: ${req.method} ${req.url}`)
+
+  const oldWrite = res.write
+  const oldEnd = res.end
+  const chunks = []
+
+  res.write = function (chunk) {
+    chunks.push(chunk)
+    return oldWrite.apply(res, arguments)
+  }
+
+  res.end = function (chunk) {
+    if (chunk) chunks.push(chunk)
+    const body = Buffer.concat(chunks).toString("utf8")
+    console.log(`Response: ${res.statusCode}`)
+    console.log(`Response body: ${body}`)
+    oldEnd.apply(res, arguments)
+  }
+
+  next()
+})
+
 const proxy = createProxyMiddleware({
   target: TARGET,
   changeOrigin: true,
-  onProxyReq: (proxyReq, req, res) => {
-    console.log(`Proxying: ${req.method} ${req.url} -> ${TARGET}${req.url}`)
-  },
-  onProxyRes: (proxyRes, req, res) => {
-    console.log(
-      `Received response: ${proxyRes.statusCode} for ${req.method} ${req.url}`
-    )
-  },
   onError: (err, req, res) => {
     console.error("Proxy Error:", err)
     res.status(500).send("Proxy Error")
