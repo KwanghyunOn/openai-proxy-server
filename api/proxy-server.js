@@ -25,6 +25,7 @@ app.use((req, res, next) => {
 
   res.end = function (chunk) {
     if (chunk) chunks.push(chunk)
+    const buffer = Buffer.concat(chunks)
 
     const contentEncoding = res.getHeader("content-encoding")
     const contentType = res.getHeader("content-type")
@@ -34,10 +35,8 @@ app.use((req, res, next) => {
     console.log(`Content-Encoding: ${contentEncoding}`)
 
     if (contentType?.includes("text/event-stream")) {
-      console.log("Streaming response detected - body not logged")
+      console.log(buffer.toString("utf8"))
     } else {
-      const buffer = Buffer.concat(chunks)
-
       let body
       try {
         if (contentEncoding === "gzip") {
