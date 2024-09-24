@@ -48,14 +48,10 @@ const proxy = createProxyMiddleware({
           console.log("parsedResponse:\n", parsedResponse)
           addLogEntry({
             type: "response",
+            method: req.method,
+            url: req.url,
             parsedResponse,
           })
-          // addLogEntry({
-          //   type: "response",
-          //   method: req.method,
-          //   url: req.url,
-          //   parsedResponse: parsedResponse,
-          // })
         } else {
           console.log("response", response)
           addLogEntry({
