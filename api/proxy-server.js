@@ -35,7 +35,23 @@ app.use((req, res, next) => {
     console.log(`Content-Encoding: ${contentEncoding}`)
 
     if (contentType?.includes("text/event-stream")) {
-      console.log(buffer.toString("utf8"))
+      // Parse OpenAI streaming response
+      // This is independent of the content encoding
+      const events = bodyBuffer.toString("utf8").split("\n\n")
+      let finalResponse = ""
+      for (const event of events) {
+        if (event.startsWith("data: ")) {
+          try {
+            const jsonData = JSON.parse(event.slice("data: ".length))
+            if (jsonData.choices && jsonData.choices[0].delta.content) {
+              finalResponse += jsonData.choices[0].delta.content
+            }
+          } catch (error) {
+            console.error("Error parsing event data:", error)
+          }
+        }
+      }
+      console.log("Final streaming response:", finalResponse)
     } else {
       let body
       try {
