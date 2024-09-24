@@ -45,13 +45,17 @@ const proxy = createProxyMiddleware({
           res.getHeader("content-type").includes("text/event-stream")
         ) {
           const parsedResponse = parseOpenAIStreamingResponse(response)
-          console.log("parsedResponse", parsedResponse)
+          console.log("parsedResponse:\n", parsedResponse)
           addLogEntry({
             type: "response",
-            method: req.method,
-            url: req.url,
-            parsedResponse: parsedResponse,
+            parsedResponse,
           })
+          // addLogEntry({
+          //   type: "response",
+          //   method: req.method,
+          //   url: req.url,
+          //   parsedResponse: parsedResponse,
+          // })
         } else {
           console.log("response", response)
           addLogEntry({
