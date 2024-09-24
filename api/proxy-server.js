@@ -4,6 +4,8 @@ const {
   responseInterceptor,
 } = require("http-proxy-middleware")
 const morgan = require("morgan")
+const { addLogEntry } = require("../utils/supabase")
+const { parseOpenAIStreamingResponse } = require("../utils/parse")
 
 const app = express()
 const PORT = 3000
@@ -20,14 +22,45 @@ const proxy = createProxyMiddleware({
   on: {
     proxyReq: (proxyReq, req, res) => {
       console.log(`${req.method} ${req.url}`)
+      let rawBody = ""
       req.on("data", (chunk) => {
-        console.log(`onProxyReq: ${chunk}`)
+        rawBody += chunk
+      })
+      req.on("end", () => {
+        const decodedBody = Buffer.from(rawBody).toString("utf8")
+        console.log(`onProxyReq: ${decodedBody}`)
+        addLogEntry({
+          type: "request",
+          method: req.method,
+          url: req.url,
+          body: decodedBody,
+        })
       })
     },
     proxyRes: responseInterceptor(
       async (responseBuffer, proxyRes, req, res) => {
-        const response = responseBuffer.toString("utf8") // convert buffer to string
-        console.log("onProxyRes", response)
+        const response = responseBuffer.toString("utf8")
+        if (
+          res.getHeader("content-type") &&
+          res.getHeader("content-type").includes("text/event-stream")
+        ) {
+          const parsedResponse = parseOpenAIStreamingResponse(response)
+          console.log("parsedResponse", parsedResponse)
+          addLogEntry({
+            type: "response",
+            method: req.method,
+            url: req.url,
+            parsedResponse: parsedResponse,
+          })
+        } else {
+          console.log("response", response)
+          addLogEntry({
+            type: "response",
+            method: req.method,
+            url: req.url,
+            response: response,
+          })
+        }
         return response
       }
     ),
