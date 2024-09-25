@@ -20,7 +20,7 @@ const proxy = createProxyMiddleware({
   changeOrigin: true,
   timeout: undefined,
   proxyTimeout: undefined,
-  // selfHandleResponse: true,
+  selfHandleResponse: true,
   on: {
     proxyReq: (proxyReq, req, res) => {
       console.log(`${req.method} ${req.url}`)
@@ -39,33 +39,33 @@ const proxy = createProxyMiddleware({
         })
       })
     },
-    // proxyRes: responseInterceptor(
-    //   async (responseBuffer, proxyRes, req, res) => {
-    //     const response = responseBuffer.toString("utf8")
-    //     if (
-    //       res.getHeader("content-type") &&
-    //       res.getHeader("content-type").includes("text/event-stream")
-    //     ) {
-    //       const parsedResponse = parseOpenAIStreamingResponse(response)
-    //       console.log("parsedResponse:\n", parsedResponse)
-    //       addLogEntry({
-    //         type: "response",
-    //         method: req.method,
-    //         url: req.url,
-    //         parsedResponse,
-    //       })
-    //     } else {
-    //       console.log("response", response)
-    //       addLogEntry({
-    //         type: "response",
-    //         method: req.method,
-    //         url: req.url,
-    //         response,
-    //       })
-    //     }
-    //     return response
-    //   }
-    // ),
+    proxyRes: responseInterceptor(
+      async (responseBuffer, proxyRes, req, res) => {
+        const response = responseBuffer.toString("utf8")
+        if (
+          res.getHeader("content-type") &&
+          res.getHeader("content-type").includes("text/event-stream")
+        ) {
+          const parsedResponse = parseOpenAIStreamingResponse(response)
+          console.log("parsedResponse:\n", parsedResponse)
+          addLogEntry({
+            type: "response",
+            method: req.method,
+            url: req.url,
+            parsedResponse,
+          })
+        } else {
+          console.log("response", response)
+          addLogEntry({
+            type: "response",
+            method: req.method,
+            url: req.url,
+            response,
+          })
+        }
+        return response
+      }
+    ),
     error: (err, req, res) => {
       console.error("Proxy Error:", err)
       res.status(500).send("Proxy Error")
