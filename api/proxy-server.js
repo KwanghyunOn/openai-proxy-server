@@ -22,23 +22,23 @@ const proxy = createProxyMiddleware({
   proxyTimeout: undefined,
   // selfHandleResponse: true,
   on: {
-    // proxyReq: (proxyReq, req, res) => {
-    //   console.log(`${req.method} ${req.url}`)
-    //   let rawBody = ""
-    //   req.on("data", (chunk) => {
-    //     rawBody += chunk
-    //   })
-    //   req.on("end", () => {
-    //     const decodedBody = Buffer.from(rawBody).toString("utf8")
-    //     console.log(`onProxyReq: ${decodedBody}`)
-    //     addLogEntry({
-    //       type: "request",
-    //       method: req.method,
-    //       url: req.url,
-    //       body: decodedBody,
-    //     })
-    //   })
-    // },
+    proxyReq: (proxyReq, req, res) => {
+      console.log(`${req.method} ${req.url}`)
+      let rawBody = ""
+      req.on("data", (chunk) => {
+        rawBody += chunk
+      })
+      req.on("end", () => {
+        const decodedBody = Buffer.from(rawBody).toString("utf8")
+        console.log(`onProxyReq: ${decodedBody}`)
+        addLogEntry({
+          type: "request",
+          method: req.method,
+          url: req.url,
+          body: decodedBody,
+        })
+      })
+    },
     // proxyRes: responseInterceptor(
     //   async (responseBuffer, proxyRes, req, res) => {
     //     const response = responseBuffer.toString("utf8")
