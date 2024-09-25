@@ -18,6 +18,8 @@ if (process.env.NODE_ENV === "development") {
 const proxy = createProxyMiddleware({
   target: TARGET,
   changeOrigin: true,
+  timeout: undefined,
+  proxyTimeout: undefined,
   // selfHandleResponse: true,
   on: {
     proxyReq: (proxyReq, req, res) => {
