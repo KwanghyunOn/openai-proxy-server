@@ -1,9 +1,10 @@
 import { createClient } from "@supabase/supabase-js"
 import dotenv from "dotenv"
+import { Database } from "../types/supabase"
 
 dotenv.config()
 
-const supabase = createClient(
+const supabase = createClient<Database>(
   process.env.SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!,
   {
@@ -33,7 +34,10 @@ export const addLogEntry = async (entry: any): Promise<any> => {
 
     return data
   } catch (error) {
-    console.error("Error in addLogEntry:", error)
+    console.error("Error in addLogEntry: ", {
+      entry,
+      error,
+    })
     throw error
   }
 }
