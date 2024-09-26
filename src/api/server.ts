@@ -23,14 +23,14 @@ const proxy = createProxyMiddleware({
   selfHandleResponse: true,
   on: {
     proxyReq: (proxyReq, req: Request, res: Response) => {
-      console.log(`${req.method} ${req.url}`)
+      // console.log(`${req.method} ${req.url}`)
       let rawBody = ""
       req.on("data", (chunk: Buffer) => {
         rawBody += chunk.toString()
       })
       req.on("end", () => {
         const decodedBody = Buffer.from(rawBody).toString("utf8")
-        console.log(`onProxyReq: ${decodedBody}`)
+        // console.log(`onProxyReq: ${decodedBody}`)
 
         // log request
         addLogEntry({
@@ -68,7 +68,7 @@ const proxy = createProxyMiddleware({
           contentType.includes("text/event-stream")
         ) {
           const parsedResponse = parseOpenAIStreamingResponse(response)
-          console.log("parsedResponse:\n", parsedResponse)
+          // console.log("parsedResponse:\n", parsedResponse)
           addLogEntry({
             type: "response",
             method: req.method,
@@ -76,7 +76,7 @@ const proxy = createProxyMiddleware({
             parsedResponse,
           })
         } else {
-          console.log("response", response)
+          // console.log("response", response)
           addLogEntry({
             type: "response",
             method: req.method,

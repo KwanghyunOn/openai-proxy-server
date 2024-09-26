@@ -1,4 +1,5 @@
 import { ChatCompletionMessageParam } from "openai/resources/chat"
+import { addLogEntry } from "./supabase"
 
 export const parseOpenAIStreamingResponse = (response: string) => {
   const events = response.split("\n\n")
@@ -25,15 +26,18 @@ export const parseWebsearchResults = (
       url: string
       content: string
     }[] => {
-  console.log("messages", messages)
   const websearchMessage = messages.find(
     (msg) =>
       msg.role === "user" &&
       typeof msg.content === "string" &&
-      msg.content.includes(
-        "# Inputs\n\n### Potentially Relevant Websearch Results"
-      )
+      msg.content.includes("### Potentially Relevant Websearch Results")
   )
+  console.log("websearchMessage", websearchMessage)
+  addLogEntry({
+    type: "debug",
+    messages,
+    websearchMessage,
+  })
 
   if (!websearchMessage || typeof websearchMessage.content !== "string") {
     return []
