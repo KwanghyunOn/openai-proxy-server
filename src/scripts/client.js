@@ -6,10 +6,10 @@ const PORT = 3000
 const PROXY_ENDPOINT = "https://openai-proxy-server.vercel.app/v1"
 const AZURE_OPENAI_ENDPOINT = "https://reliv-openai-east-us.openai.azure.com"
 const AZURE_OPENAI_DEPLOYMENT_NAME = "gpt-4o-2024-08-06"
-const AZURE_OPENAI_API_KEY = process.env.AZURE_OPENAI_API_KEY
+const AZURE_OPENAI_API_KEY = "YOUR_AZURE_OPENAI_API_KEY"
 
 const OPENAI_ENDPOINT = "https://api.openai.com/v1"
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY
+const OPENAI_API_KEY = "YOUR_OPENAI_API_KEY"
 
 async function fetchProxyServer() {
   try {
