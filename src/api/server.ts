@@ -1,19 +1,16 @@
-const express = require("express")
-const {
+import express, { Request, Response } from "express"
+import {
   createProxyMiddleware,
   responseInterceptor,
-} = require("http-proxy-middleware")
-const morgan = require("morgan")
-const { addLogEntry } = require("../utils/supabase")
-const { parseOpenAIStreamingResponse } = require("../utils/parse")
+} from "http-proxy-middleware"
+import morgan from "morgan"
+import { addLogEntry } from "../utils/supabase"
+import { parseOpenAIStreamingResponse } from "../utils/parse"
+import { Socket } from "net"
 
 const app = express()
 const PORT = 3000
 const TARGET = "https://api.openai.com"
-
-if (process.env.NODE_ENV === "development") {
-  app.use(morgan("dev"))
-}
 
 const proxy = createProxyMiddleware({
   target: TARGET,
@@ -22,11 +19,11 @@ const proxy = createProxyMiddleware({
   proxyTimeout: undefined,
   selfHandleResponse: true,
   on: {
-    proxyReq: (proxyReq, req, res) => {
+    proxyReq: (proxyReq, req: Request, res: Response) => {
       console.log(`${req.method} ${req.url}`)
       let rawBody = ""
-      req.on("data", (chunk) => {
-        rawBody += chunk
+      req.on("data", (chunk: Buffer) => {
+        rawBody += chunk.toString()
       })
       req.on("end", () => {
         const decodedBody = Buffer.from(rawBody).toString("utf8")
@@ -40,11 +37,13 @@ const proxy = createProxyMiddleware({
       })
     },
     proxyRes: responseInterceptor(
-      async (responseBuffer, proxyRes, req, res) => {
+      async (responseBuffer, proxyRes, req: Request, res: Response) => {
         const response = responseBuffer.toString("utf8")
+        const contentType = res.getHeader("content-type")
         if (
-          res.getHeader("content-type") &&
-          res.getHeader("content-type").includes("text/event-stream")
+          contentType &&
+          typeof contentType !== "number" &&
+          contentType.includes("text/event-stream")
         ) {
           const parsedResponse = parseOpenAIStreamingResponse(response)
           console.log("parsedResponse:\n", parsedResponse)
@@ -66,16 +65,20 @@ const proxy = createProxyMiddleware({
         return response
       }
     ),
-    error: (err, req, res) => {
+    error: (err: Error, req: Request, res: Response | Socket) => {
       console.error("Proxy Error:", err)
-      res.status(500).send("Proxy Error")
+      if (res instanceof Response) {
+        ;(res as express.Response).status(500).send("Proxy Error")
+      }
     },
   },
 })
 
-app.use("/", proxy)
+if (process.env.NODE_ENV === "development") {
+  app.use(morgan("dev"))
+}
 
-module.exports = app
+app.use("/", proxy)
 
 if (process.env.NODE_ENV === "development") {
   app.listen(PORT, () => {
@@ -86,3 +89,5 @@ if (process.env.NODE_ENV === "development") {
 }
 
 console.log(`Proxying all requests to ${TARGET}`)
+
+export default app

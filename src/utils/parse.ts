@@ -1,4 +1,4 @@
-const parseOpenAIStreamingResponse = (response) => {
+export const parseOpenAIStreamingResponse = (response: string) => {
   const events = response.split("\n\n")
   let finalResponse = ""
 
@@ -14,8 +14,4 @@ const parseOpenAIStreamingResponse = (response) => {
     }
   }
   return finalResponse
-}
-
-module.exports = {
-  parseOpenAIStreamingResponse,
 }
