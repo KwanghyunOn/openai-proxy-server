@@ -40,15 +40,20 @@ const proxy = createProxyMiddleware({
           body: decodedBody,
         })
 
-        // log websearch results
-        const websearchResults = parseWebsearchResults(JSON.parse(decodedBody))
-        if (websearchResults.length > 0) {
-          for (const result of websearchResults) {
-            addLogEntry({
-              type: "websearch",
-              url: result.url,
-              content: result.content,
-            })
+        if (req.url.includes("/v1/chat/completions")) {
+          const parsedBody = JSON.parse(decodedBody)
+          const messages = parsedBody.messages
+
+          // log websearch results
+          const websearchResults = parseWebsearchResults(messages)
+          if (websearchResults.length > 0) {
+            for (const result of websearchResults) {
+              addLogEntry({
+                type: "websearch",
+                url: result.url,
+                content: result.content,
+              })
+            }
           }
         }
       })

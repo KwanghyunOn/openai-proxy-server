@@ -25,6 +25,7 @@ export const parseWebsearchResults = (
       url: string
       content: string
     }[] => {
+  console.log("messages", messages)
   const websearchMessage = messages.find(
     (msg) =>
       msg.role === "user" &&
