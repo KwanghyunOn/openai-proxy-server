@@ -5,7 +5,10 @@ import {
 } from "http-proxy-middleware"
 import morgan from "morgan"
 import { addLogEntry } from "../utils/supabase"
-import { parseOpenAIStreamingResponse } from "../utils/parse"
+import {
+  parseOpenAIStreamingResponse,
+  parseWebsearchResults,
+} from "../utils/parse"
 import { Socket } from "net"
 
 const app = express()
@@ -28,12 +31,26 @@ const proxy = createProxyMiddleware({
       req.on("end", () => {
         const decodedBody = Buffer.from(rawBody).toString("utf8")
         console.log(`onProxyReq: ${decodedBody}`)
+
+        // log request
         addLogEntry({
           type: "request",
           method: req.method,
           url: req.url,
           body: decodedBody,
         })
+
+        // log websearch results
+        const websearchResults = parseWebsearchResults(JSON.parse(decodedBody))
+        if (websearchResults.length > 0) {
+          for (const result of websearchResults) {
+            addLogEntry({
+              type: "websearch",
+              url: result.url,
+              content: result.content,
+            })
+          }
+        }
       })
     },
     proxyRes: responseInterceptor(
